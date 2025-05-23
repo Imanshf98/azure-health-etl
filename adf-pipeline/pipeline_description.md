@@ -1,39 +1,28 @@
+# Azure Data Factory Pipeline: CSV to SQL
 
-# ADF Pipeline: CsvToSqlPipeline
+## Overview
 
-This Azure Data Factory (ADF) pipeline ingests healthcare data from Azure Blob Storage and loads it into an Azure SQL Database.
+This ADF pipeline copies data from a CSV file in Azure Blob Storage into a SQL table (`PatientVitals`) in Azure SQL Database.
 
-## Components
+## Configuration
 
-### 1. **Copy Data Activity**
-- **Name**: CopyCsvToSql
-- **Type**: Data Movement
-- **Description**: Transfers data from a CSV file in Blob Storage to a relational table in Azure SQL.
-
-## Source Configuration
-
-- **Dataset**: `PatientCsv`
-- **Linked Service**: Azure Blob Storage (`BlobStorageLinked`)
+### Source Dataset
+- **Type**: DelimitedText
+- **Storage**: Azure Blob Storage (linked via `BlobStorageLinked`)
 - **File**: `synthetic_health_data.csv`
-- **Format**: Delimited Text (CSV)
-- **First row as header**: Yes
+- **Header row**: Yes
 
-## Sink Configuration
-
-- **Dataset**: `PatientTable`
-- **Linked Service**: Azure SQL Database (`SqlDbLinked`)
+### Sink Dataset
+- **Type**: Azure SQL Table
 - **Table**: `dbo.PatientVitals`
-- **Write batch size**: Default
-- **Table schema**: Auto-mapped from CSV columns
+- **Linked Service**: `SqlDbLinked`
+- **Authentication**: SQL Server auth (`CloudSA...` login)
 
-## Execution
+## Copy Data Activity
+- **Transformation**: Direct copy, no mapping changes
+- **Integration Runtime**: Auto-resolves, region-matched
 
-- Validated with Debug run
-- Successful records load: 100 (from synthetic CSV)
-- Tested on: Canada Central Region
+## Known Issues & Fixes
 
-## Notes
-
-- ADF Integration Runtime IP must be allowed in SQL Server Firewall.
-- No transformations were applied in this pipeline.
-- Future steps can include schema mapping, derived columns, or risk-score calculations.
+- **IP Access**: Add ADF runtime IP (e.g., `52.228.80.170`) to SQL server firewall
+- **Schema Errors**: Ensure table columns match CSV headers
